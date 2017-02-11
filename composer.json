@@ -1,0 +1,22 @@
+{
+  "name": "jinnguyen/puja-template",
+  "description": "Puja-Template is a lightweight, flexible and easy PHP  template engine. Inspired in django, Puja also support validate template syntax!",
+  "type": "library",
+  "license": "The MIT License (MIT)",
+  "keywords": ["puja", "template engine", "php template engine", "django style", "template engine validate syntax"],
+  "authors": [
+      {
+        "name": "Jin Nguyen",
+        "email": "w2ajax@gmail.com"
+      }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "jinnguyen/puja-stdlib": "*"
+  },
+  "autoload": {
+    "psr-4": {
+        "Puja\\Template\\": "src/"
+    }
+  }
+}

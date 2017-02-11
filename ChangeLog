@@ -1,0 +1,20 @@
+- 2017-02-11
+    - Change Puja -> Puja\Template
+    - Refactor code
+    - Support smart access variable value, ex: {{ a.b }} will access like $a->b if $a is a obj, and $a['b'] if $a is array.
+
+- 2016-10-23
+    - Refactor code
+    - Fix issue debug syntax {{ var }
+    - Add Autoload.php
+    - Add composer.json
+    - Update example files
+- 2013-11-17:
+	- Fix variable a == 0
+	- Update performance for cache level = 2( Dont load template content if cache_level  = 2)
+	- Add validate template_file and template_data
+	- Add validate operator syntax:  " a in b"
+	- Add more escape  \{%, \{$, \{#
+	- Change custom syntax name with prefix: tag_
+	- Update documents
+- 2013-10-07: Release Puja v1.0
