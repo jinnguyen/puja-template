@@ -4,9 +4,11 @@ class IncludeTag extends TagAbstract
 {
     protected $tagNames = array('include');
     protected $includeContents = array();
+    protected $lexerIndex = 0;
 
     protected function init()
     {
+
         $content = $this->parser->getTplContent();
 
         preg_match_all('/\{\%\s?include\s+(.*?)\s+(.*?)\s?\%\}/i', $content, $matches);
@@ -15,7 +17,6 @@ class IncludeTag extends TagAbstract
         }
 
         $replaces = array();
-
         foreach ($matches[1] as $key => $includeFile) {
             //preg_replace
             if (!array_key_exists($includeFile, $this->includeContents)) {
@@ -24,28 +25,34 @@ class IncludeTag extends TagAbstract
             $replaces[$key] = $this->includeContents[$includeFile];
             $setVariable = trim($matches[2][$key]);
             if ($setVariable) {
-                $replaces[$key] = '{% ' . $this->parser->getHashSeparator() . 'beforeinclude ' . $setVariable . ' %}' .
-                    $this->includeContents[$includeFile] . '{% ' . $this->parser->getHashSeparator() . 'afterinclude %}';
+                $replaces[$key] = '{% ' . $this->parser->getHashSeparator() . $key . $this->lexerIndex . 'beforeinclude ' . $setVariable . ' %}' .
+                    $this->includeContents[$includeFile] . '{% ' . $this->parser->getHashSeparator() . $key . $this->lexerIndex . 'afterinclude %}';
 
             }
         }
         $content = str_replace($matches[0], $replaces, $content);
-
         $this->parser->setTplContent($content);
+
+        preg_match_all('/\{\%\s?include\s+(.*?)\s+(.*?)\s?\%\}/i', $content, $matches);
+        if (!empty($matches[1])) {
+            $this->lexerIndex++;
+            $this->init();
+        }
+
         return;
+
     }
 
     public function afterCompile()
     {
         $content = $this->parser->getTplContent();
-        preg_match_all('/\{\%\s?' . $this->parser->getHashSeparator() . 'beforeinclude\s+(.*?)\s?\%\}/i', $content, $beforeIncludes);
-
+        preg_match_all('/\{\%\s?[a-zA-Z0-9]*?beforeinclude\s+(.*?)\s?\%\}/i', $content, $beforeIncludes);
         if (empty($beforeIncludes[1])) {
             return;
         }
 
 
-        preg_match_all('/\{\%\s?' . $this->parser->getHashSeparator() . 'afterinclude\s?\%\}/i', $content, $afterIncludes);
+        preg_match_all('/\{\%\s?[a-zA-Z0-9]*?afterinclude\s?\%\}/i', $content, $afterIncludes);
         if (count($beforeIncludes[0]) !== count($afterIncludes[0])) {
             return;
         }
@@ -53,12 +60,12 @@ class IncludeTag extends TagAbstract
         $afterIncludes[1] = array();
         foreach ($beforeIncludes[1] as $key => $var) {
             $params = $this->getAssignVars($var);
-            $beforeIncludes[1][$key] = '\';function fn' . $key . $this->parser->getHashSeparator() . 'includeTpl(' . implode(',', array_keys($params)) . '){ ' . $this->parser->getAstVar(false) . ' =\'';
+            $fnName = 'fn_' . $key  . '_' . $this->parser->getHashSeparator() . 'includeTpl';
+            $beforeIncludes[1][$key] = '\';function ' . $fnName . '(' . implode(',', array_keys($params)) . '){ ' . $this->parser->getAstVar(false) . ' =\'';
 
-            $afterIncludes[1][$key] = '\';return ' . $this->parser->getAstVar(false) . ';} ' . $this->parser->getAstVar(false) . ' .= fn' . $key . $this->parser->getHashSeparator() . 'includeTpl(' . implode(',', $params) . ');' . $this->parser->getAstVar();
+            $afterIncludes[1][$key] = '\';return ' . $this->parser->getAstVar(false) . ';} ' . $this->parser->getAstVar(false) . '.=' . $fnName . '(' . implode(',', $params) . ');' . $this->parser->getAstVar();
             //
         }
-
         $content = str_replace($beforeIncludes[0], $beforeIncludes[1], $content);
         $content = str_replace($afterIncludes[0], $afterIncludes[1], $content);
         return $content;

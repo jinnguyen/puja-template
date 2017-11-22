@@ -9,17 +9,17 @@ class Builtin extends FilterAbstract
 
     public function capfirstFilter($var, $arg = null)
     {
-        if (empty($val)) {
-        	return $val;
+        if (empty($var)) {
+        	return $var;
         }
 
-        return ucfirst($val);
+        return ucfirst($var);
     }
 
     public function dateFilter($var, $arg = 'Y-m-d h:i:s')
     {
         if (is_numeric($var)) {
-        	return date($var, $val);
+        	return date($var, $arg);
         }
 
         return date($arg, strtotime($var));
@@ -27,7 +27,8 @@ class Builtin extends FilterAbstract
 
     public function defaultFilter($var, $arg = null)
     {
-        if (empty($var)) {
+
+        if ($var === null) {
         	return $arg;
         }
 

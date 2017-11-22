@@ -51,6 +51,11 @@ class Template
 
     }
 
+    public function addTemplateDirs($dir)
+    {
+        $this->config['templateDirs'][] = $dir;
+    }
+
     public function add($key, $values)
     {
         $this->data[$key] = $values;
@@ -63,7 +68,8 @@ class Template
 
     public function parse($tplFile, $data = array(), $return = false, $contentType = 'text/html; charset=utf-8')
     {
-        $parser = new Parser($this, $tplFile, $data + $this->data);
+        $data = $data + $this->data;
+        $parser = new Parser($this, $tplFile, $data);
         extract($data);
         $ast = include $parser->getTplCompiledFile();
         if ($return) {

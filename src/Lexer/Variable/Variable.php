@@ -65,9 +65,10 @@ class Variable extends \Puja\Template\Lexer\LexerAbstract
         // modify for in_array
         foreach ($vars as $key => $var) {
             if (in_array($var, $this->operatorFn)) {
-                $vars[$key - 1] = '($inarray' . $this->parser->getHashSeparator() . $key . '=' . $vars[$key + 1] . ' && ' . $var . '(' . $vars[$key - 1];
+                $varInArray = '$inarray' . $this->parser->getHashSeparator() . $key;
+                $vars[$key - 1] = $varInArray . '=' . $vars[$key + 1] . '){} if(' . $varInArray .  '&& ' . $var . '(' . $vars[$key - 1];
                 $vars[$key] = ',';
-                $vars[$key + 1] = '$inarray' . $this->parser->getHashSeparator() . $key . '))';
+                $vars[$key + 1] = $varInArray . ')';
             }
         }
         
@@ -105,6 +106,7 @@ class Variable extends \Puja\Template\Lexer\LexerAbstract
 
     protected function buildSimpleVar($var, $checkIsset = true, $checkArrayObj = false)
     {
+        $var = stripcslashes(trim($var));
         $firstChar = substr($var, 0, 1);
         if ($firstChar == '"' || $firstChar == '\'' || is_numeric($firstChar)) {
             return $var;
