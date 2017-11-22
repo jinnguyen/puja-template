@@ -150,7 +150,7 @@ class Variable extends \Puja\Template\Lexer\LexerAbstract
         }
 
         if ($toString && (is_array($data) || is_object($data))) {
-            return print_r($data, true);
+            //return print_r($data, true);
         }
 
         return $data;
